@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:17
+    container_name: negma_postgres
+
+    environment:
+      POSTGRES_DB: negma_DB
+      POSTGRES_USER: negma
+      POSTGRES_PASSWORD: negma123
+
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
