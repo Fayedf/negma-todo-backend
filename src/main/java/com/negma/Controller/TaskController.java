@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -30,12 +31,30 @@ public class TaskController {
 
     @PostMapping()
     public ResponseEntity<TaskResponse> createTask(@RequestBody TaskRequest taskRequest){
-        System.out.println(" task Request " + taskRequest.getTitle());
         TaskResponse newTask = taskService.createTask(taskRequest);
         return ResponseEntity.ok(newTask);
 
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable UUID id,@RequestBody TaskRequest taskRequest){
+        TaskResponse taskResponse = taskService.updateTask(id,taskRequest);
+        return ResponseEntity.ok(taskResponse);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TaskResponse> updateCompletionTask(@PathVariable UUID id){
+        TaskResponse taskResponse = taskService.updateCompletionTask(id);
+        return ResponseEntity.ok(taskResponse);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<TaskResponse> deleteTask(@PathVariable UUID id){
+
+        TaskResponse taskResponse = taskService.DeleteById(id);
+        return ResponseEntity.ok(taskResponse);
+
+    }
 
 
 }

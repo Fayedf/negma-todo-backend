@@ -1,6 +1,7 @@
 package com.negma.Entity;
 
 import com.negma.Enums.TaskPriority;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,7 @@ public class Task {
     private String  title;
     private String  description;
     @Builder.Default
+    @Column(nullable = false)
     private Boolean completed = false;
     private TaskPriority priority;
     private LocalDate dueDate;

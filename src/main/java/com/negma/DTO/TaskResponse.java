@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,6 +16,8 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class TaskResponse {
+
+    private UUID id;
 
     @NotBlank(message = "Title is required")
     @Size(min = 1, max = 120,
