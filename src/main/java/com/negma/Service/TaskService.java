@@ -4,7 +4,7 @@ import com.negma.DTO.TaskRequest;
 import com.negma.DTO.TaskResponse;
 import com.negma.Entity.Task;
 import com.negma.Mapper.TaskMapper;
-import com.negma.Reposetory.TaskRepo;
+import com.negma.Repository.TaskRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.negma.Reposetory;
+package com.negma.Repository;
 
 import com.negma.Entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
