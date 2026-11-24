@@ -1,17 +1,16 @@
 package com.negma.DTO.Auth;
 
 import com.negma.Enums.Role;
+import lombok.*;
 
 import java.util.UUID;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AuthResponse {
 
-
    private String accessToken ;
-
-    private UUID userId ;
-    private String fullName ;
-    private String email ;
-    private Role role ;
 
 }

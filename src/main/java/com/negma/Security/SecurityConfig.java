@@ -1,5 +1,6 @@
 package com.negma.Security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,12 +14,20 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
 
 
     @Bean
@@ -38,9 +47,14 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
 
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable);
+                .httpBasic(AbstractHttpConfigurer::disable)
 
-     return http.build();
+                .oauth2ResourceServer(oauth->
+                        oauth.jwt(Customizer.withDefaults()))
+        ;
+
+
+        return http.build();
 
 
     }
@@ -50,14 +64,36 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-@Bean
+    @Bean
     public AuthenticationManager authenticationManager(CustomUserDetailsService userDetailsService,
-                                                      PasswordEncoder passwordEncoder)
-        throws Exception {
+                                                       PasswordEncoder passwordEncoder)
+            throws Exception {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
-    daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
 
-    return new ProviderManager(daoAuthenticationProvider);
-}
+        return new ProviderManager(daoAuthenticationProvider);
+    }
+
+    @Bean
+    public SecretKey secretKey(@Value("${app.jwt.secret}") String encodedSecret) {
+        byte[] key = Base64.getDecoder().decode(encodedSecret);
+
+        return new SecretKeySpec(key, "HmacSHA256");
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder(SecretKey secretKey) {
+        return NimbusJwtEncoder.withSecretKey(secretKey)
+                .algorithm(MacAlgorithm.HS256)
+                .build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder(SecretKey secretKey) {
+        return NimbusJwtDecoder.withSecretKey(secretKey)
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
+    }
+
 
 }
