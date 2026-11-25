@@ -14,6 +14,7 @@ import javax.swing.*;
 public interface TaskMapper {
 
     @Mapping(target = "completed", ignore = true)
+    @Mapping(target = "user", ignore = true)
    Task toEntity(TaskRequest taskRequest);
     
     TaskResponse toResponse(Task  task);

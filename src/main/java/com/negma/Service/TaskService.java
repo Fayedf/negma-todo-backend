@@ -3,10 +3,13 @@ package com.negma.Service;
 import com.negma.DTO.TaskRequest;
 import com.negma.DTO.TaskResponse;
 import com.negma.Entity.Task;
+import com.negma.Entity.User;
 import com.negma.Mapper.TaskMapper;
 import com.negma.Repository.TaskRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,34 +21,50 @@ public class TaskService {
 
     private final TaskRepo taskRepo;
     private final TaskMapper taskMapper;
+    private final CurrentUserService currentUserService;
+
     List<Task> deletedTasks = new ArrayList<>();
 
-    public List<TaskResponse> getAllTasks() {
-      List<Task> tasks = taskRepo.findAll();
+    private Task getOwnedTask(UUID uuid){
+        User user = currentUserService.getCurrentUser();
+        return taskRepo.findByIdAndUser(uuid,user).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Task not found"));
+    }
 
-      List<TaskResponse> tasksResponse = tasks.stream().
-              map(taskMapper::toResponse).toList();
-        return tasksResponse;
+
+    public List<TaskResponse> getAllTasks() {
+        User user = currentUserService.getCurrentUser();
+
+        List<Task> tasks = taskRepo.findAllByUser(user);
+
+        return tasks.stream().
+                map(taskMapper::toResponse).toList();
     }
 
     public TaskResponse createTask(TaskRequest taskRequest) {
         Task task = taskMapper.toEntity(taskRequest);
+        User user = currentUserService.getCurrentUser();
+        task.setUser(user);
         task = taskRepo.save(task);
         return taskMapper.toResponse(task);
     }
 
     public TaskResponse updateTask(UUID id, TaskRequest taskRequest) {
-       Task task =  taskRepo.findById(id).orElseThrow(()->new RuntimeException("Task not found"));
+
+       Task task =  getOwnedTask(id);
+
        task.setTitle(taskRequest.getTitle());
        task.setDescription(taskRequest.getDescription());
        task.setPriority(taskRequest.getPriority());
        task.setDueDate(taskRequest.getDueDate());
+
        taskRepo.save(task);
        return taskMapper.toResponse(task);
     }
 
     public TaskResponse updateCompletionTask(UUID id) {
-        Task task = taskRepo.findById(id).orElseThrow(()->new RuntimeException("Task not found"));
+
+        Task task =  getOwnedTask(id);
+
         if(task.getCompleted()==true){
             task.setCompleted(false);
         }else {
@@ -56,7 +75,9 @@ public class TaskService {
     }
 
     public TaskResponse DeleteById(UUID id) {
-        Task task = taskRepo.findById(id).orElseThrow(()-> new RuntimeException("Task not found"));
+
+        Task task =  getOwnedTask(id);
+
         deletedTasks.add(task);
         taskRepo.deleteById(id);
         return taskMapper.toResponse(task);

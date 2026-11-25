@@ -42,8 +42,15 @@ public class User {
     @Column(nullable = false)
     private Role role =  Role.USER;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<Task> tasks =  new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user")
+    private List<Category> categories =  new ArrayList<>();
+
+
 
     @CreatedDate
     private LocalDate createdAt;

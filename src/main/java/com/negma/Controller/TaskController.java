@@ -25,7 +25,8 @@ public class TaskController {
 
 @GetMapping()
     public ResponseEntity<List<TaskResponse>> getTasks(){
-       List<TaskResponse> tasks =  taskService.getAllTasks();
+
+    List<TaskResponse> tasks =  taskService.getAllTasks();
        return ResponseEntity.ok(tasks);
     }
 
